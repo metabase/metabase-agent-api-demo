@@ -45,7 +45,7 @@ const orderBySchema = z.object({
 export const agentTools = {
   search_data_sources: tool({
     description:
-      "Search for tables and metrics in Metabase. Use keyword queries for exact matches and semantic queries for natural-language searches. Returns a ranked list of matching tables and metrics.",
+      "Search for tables and metrics in Appice. Use keyword queries for exact matches and semantic queries for natural-language searches. Returns a ranked list of matching tables and metrics.",
     inputSchema: z.object({
       term_queries: z
         .array(z.string())
@@ -103,7 +103,7 @@ export const agentTools = {
 
   run_query: tool({
     description:
-      "Build and execute a Metabase query in one step. Provide exactly one of table_id or metric_id. Returns column metadata and result rows.",
+      "Build and execute an Appice query in one step. Provide exactly one of table_id or metric_id. Returns column metadata and result rows.",
     inputSchema: z.object({
       table_id: z.number().optional().describe("Table ID (for table queries)"),
       metric_id: z.number().optional().describe("Metric ID (for metric queries)"),

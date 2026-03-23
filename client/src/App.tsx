@@ -124,13 +124,43 @@ export default function App() {
   };
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Metabase Agent</h1>
-        <p>Ask questions about your data</p>
+    <div className="app-shell">
+      <header className="app-top-header">
+        <div className="app-top-header-left">
+          <img
+            className="app-header-mark"
+            src="/appice-logo-square.png"
+            alt="Appice"
+            width={36}
+            height={36}
+          />
+          <div className="app-header-titles">
+            <h1>Appice Analytics Browser</h1>
+            <p>Explore and visualize your data in real-time</p>
+          </div>
+        </div>
+        <div className="app-top-header-right app-header">
+          <img
+            className="app-header-mark"
+            src="/appice-icon.png"
+            alt=""
+            width={36}
+            height={36}
+          />
+          <div className="app-header-titles">
+            <h1>Appice Agent</h1>
+            <p>Ask questions about your data</p>
+          </div>
+        </div>
       </header>
 
-      <div className="messages">
+      <div className="app-main">
+        <section className="appice-pane" aria-label="Appice Analytics Browser">
+          <metabase-browser initial-collection="root" read-only="false" />
+        </section>
+
+        <div className="chat-pane">
+        <div className="messages">
         {messages.map((message) => (
           <div key={message.id} className={`message ${message.role}`}>
             <div className="message-label">
@@ -182,9 +212,9 @@ export default function App() {
         )}
 
         <div ref={messagesEndRef} />
-      </div>
+        </div>
 
-      <form className="input-area" onSubmit={handleSubmit}>
+        <form className="input-area" onSubmit={handleSubmit}>
         <div className={`input-container ${isLoading ? "loading" : ""}`}>
           <input
             value={input}
@@ -202,7 +232,9 @@ export default function App() {
             </button>
           )}
         </div>
-      </form>
+        </form>
+        </div>
+      </div>
     </div>
   );
 }

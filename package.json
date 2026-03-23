@@ -1,6 +1,6 @@
 {
   "name": "metabase-agent-api-demo",
-  "description": "A sample chat app for the Metabase Agent API",
+  "description": "Appice-branded sample chat app for the Metabase Agent API",
   "private": true,
   "license": "MIT",
   "repository": {

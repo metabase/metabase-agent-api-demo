@@ -1,12 +1,20 @@
 import jwt from "jsonwebtoken";
 
-const METABASE_URL = () => process.env.METABASE_INSTANCE_URL!;
-const JWT_SECRET = () => process.env.METABASE_JWT_SHARED_SECRET!;
-const USER_EMAIL = () => process.env.METABASE_USER_EMAIL!;
+const METABASE_URL = () => process.env.METABASE_INSTANCE_URL!.trim();
+/** Trimmed — trailing newlines/spaces in .env break HMAC vs the instance JWT validator. */
+const JWT_SECRET = () => process.env.METABASE_JWT_SHARED_SECRET!.trim();
+const USER_EMAIL = () => process.env.METABASE_USER_EMAIL!.trim();
 
-function signJwt(): string {
+/** Same claims as Agent API JWT; also used for modular embedding (`fetchRequestToken`). */
+export function signJwt(): string {
+  const now = Math.floor(Date.now() / 1000);
   return jwt.sign(
-    { email: USER_EMAIL(), iat: Math.floor(Date.now() / 1000) },
+    {
+      email: USER_EMAIL(),
+      iat: now,
+      // Some JWT validators expect exp; keep total lifetime under Agent API iat window (~180s).
+      exp: now + 120,
+    },
     JWT_SECRET(),
   );
 }
@@ -27,7 +35,20 @@ async function agentRequest(path: string, options?: RequestInit) {
   const body = await response.text();
 
   if (!response.ok) {
-    throw new Error(`Metabase API ${response.status}: ${body}`);
+    let detail = body;
+    try {
+      const parsed = JSON.parse(body) as { error?: string; message?: string };
+      if (parsed.message) {
+        detail = parsed.message;
+        if (parsed.error === "jwt_not_configured") {
+          detail +=
+            " Enable JWT in admin: Admin → Settings → Authentication → JWT, set the shared secret to match METABASE_JWT_SHARED_SECRET in .env, and save.";
+        }
+      }
+    } catch {
+      /* use raw body */
+    }
+    throw new Error(`Appice API ${response.status}: ${detail}`);
   }
 
   return JSON.parse(body);

@@ -5,8 +5,8 @@
 }
 
 :root {
-  --brand: #509ee3;
-  --brand-hover: #3d8bd4;
+  --brand: #418afe;
+  --brand-hover: #689dff;
   --bg-primary: #fff;
   --bg-secondary: #f8f8f8;
   --bg-tertiary: #eeefef;
@@ -31,34 +31,147 @@ body {
 
 /* --- App layout --- */
 
-.app {
+.app-shell {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 720px;
   margin: 0 auto;
+  max-width: 1400px;
   background: var(--bg-primary);
   border-left: 1px solid var(--border);
   border-right: 1px solid var(--border);
 }
 
-/* --- Header --- */
+.app-top-header {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+
+.app-top-header-left {
+  flex: 1 1 70%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-right: 1px solid var(--border);
+}
+
+.app-top-header-right {
+  flex: 1 1 30%;
+  min-width: 0;
+}
+
+.app-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.appice-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 38vh;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+
+@media (min-width: 900px) {
+  .app-main {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .appice-pane {
+    flex: 1 1 70%;
+    min-height: 0;
+    min-width: 0;
+    border-bottom: none;
+    border-right: 1px solid var(--border);
+  }
+
+  .app-top-header-left {
+    padding: 1rem;
+  }
+}
+
+metabase-browser {
+  display: block;
+  flex: 1;
+  min-height: 280px;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  metabase-browser {
+    min-height: 0;
+  }
+}
+
+.chat-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .chat-pane {
+    flex: 1 1 30%;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+/* --- Shared top bar (right cell reuses .app-header for title styles) --- */
 
 .app-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  height: 100%;
+  padding: 0.75rem 1rem;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.75rem;
 }
 
-.app-header h1 {
+@media (min-width: 900px) {
+  .app-header {
+    padding: 1rem 1.5rem;
+  }
+}
+
+.app-header-mark {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: block;
+  object-fit: contain;
+}
+
+.app-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.app-header-titles h1 {
   font-size: 1rem;
   font-weight: 700;
   color: var(--brand);
 }
 
-.app-header p {
+.app-header-titles p {
   font-size: 0.8125rem;
   color: var(--text-tertiary);
 }

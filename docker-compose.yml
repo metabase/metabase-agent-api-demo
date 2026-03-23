@@ -1,0 +1,45 @@
+# API (Node) + web (nginx static + /api proxy). Configure repo-root `.env`; client reads
+# METABASE_INSTANCE_URL at runtime via GET /api/config (no build-time bake-in).
+#
+# nginx listens on LISTEN_PORT (default 4010) inside the web container; map host WEB_PORT to it.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    env_file: .env
+    environment:
+      SERVER_PORT: ${SERVER_PORT:-4011}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:'+(process.env.SERVER_PORT||4011)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - metabase-agent-api-demo
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "${WEB_PORT:-4010}:${LISTEN_PORT:-4010}"
+    environment:
+      API_PORT: ${SERVER_PORT:-4011}
+      LISTEN_PORT: ${LISTEN_PORT:-4010}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - metabase-agent-api-demo
+
+networks:
+  metabase-agent-api-demo:
+    name: metabase-agent-api-demo

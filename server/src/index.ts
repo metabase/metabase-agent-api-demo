@@ -7,6 +7,7 @@ import { ToolLoopAgent, pipeAgentUIStreamToResponse, UIMessage, stepCountIs } fr
 import { anthropic } from "@ai-sdk/anthropic";
 import { systemPrompt } from "./prompt.js";
 import { agentTools } from "./tools.js";
+import * as metabase from "./metabase.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const envPath = path.resolve(__dirname, "../../.env");
@@ -16,7 +17,7 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-const PORT = parseInt(process.env.SERVER_PORT || "3001");
+const PORT = parseInt(process.env.SERVER_PORT || "4011");
 
 // Verify required env vars
 const requiredEnvVars = ["METABASE_INSTANCE_URL", "METABASE_JWT_SHARED_SECRET", "METABASE_USER_EMAIL", "ANTHROPIC_API_KEY"];
@@ -36,6 +37,22 @@ const agent = new ToolLoopAgent({
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+/** Public Metabase URL for the browser (embed.js, `window.metabaseConfig`). Same source as server-side API calls. */
+app.get("/api/config", (_req, res) => {
+  const url = process.env.METABASE_INSTANCE_URL!.trim().replace(/\/$/, "");
+  res.json({ metabaseInstanceUrl: url });
+});
+
+/** JWT for modular embedding (`embed.js` / `<metabase-browser>`). Returns `{ jwt }` per Metabase SDK docs. */
+app.get("/api/embed-token", (_req, res) => {
+  try {
+    res.json({ jwt: metabase.signJwt() });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    res.status(500).json({ error: message });
+  }
 });
 
 app.post("/api/chat", async (req, res) => {

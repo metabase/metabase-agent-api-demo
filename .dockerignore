@@ -1,0 +1,12 @@
+.git
+.gitignore
+**/.DS_Store
+**/node_modules
+client/dist
+server/dist
+.env
+.env.*
+!.env.example
+*.md
+.vscode
+.cursor

@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+# Static UI from Vite build; nginx proxies /api to the api service.
+#
+# Do not use envsubst templates for the server block: $$ escaping breaks nginx
+# (e.g. $proxy_add_x_forwarded_for). Stock nginx image generates conf.d from
+# templates at startup — remove the default template and use conf.d/default.conf
+# + docker-entrypoint.d/25-sed-nginx-ports.sh for ports.
+
+FROM node:20-bookworm-slim AS client-builder
+WORKDIR /app/client
+COPY client/package.json client/package-lock.json ./
+RUN npm ci
+COPY client/ ./
+RUN npm run build
+
+FROM nginx:alpine
+RUN rm -f /etc/nginx/templates/default.conf.template
+COPY --from=client-builder /app/client/dist /usr/share/nginx/html
+COPY nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx/snippets/spa.conf /etc/nginx/snippets/spa.conf
+COPY docker-entrypoint.d/25-sed-nginx-ports.sh /docker-entrypoint.d/25-sed-nginx-ports.sh
+RUN chmod +x /docker-entrypoint.d/25-sed-nginx-ports.sh
+ENV API_PORT=4011
+ENV LISTEN_PORT=4010
+EXPOSE 4010
